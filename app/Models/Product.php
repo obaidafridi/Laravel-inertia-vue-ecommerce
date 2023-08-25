@@ -6,6 +6,7 @@ use App\Traits\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use DB;
 
 class Product extends Model
 {
@@ -62,10 +63,13 @@ class Product extends Model
                     $query->orderBy('price', 'asc');
                     break;
                 case 'best_selling':
+                    $subquery = DB::table('order_product')
+                        ->selectRaw('product_id, SUM(quantity) as total_quantity')
+                        ->groupBy('product_id');
+
                     $query
-                        ->selectRaw('products.*, SUM(quantity) as best_selling')
-                        ->leftJoin('order_product', 'products.id', '=', 'order_product.product_id')
-                        ->groupBy('products.id')
+                        ->selectRaw('products.*, COALESCE(sub.total_quantity, 0) as best_selling')
+                        ->leftJoinSub($subquery, 'sub', 'products.id', '=', 'sub.product_id')
                         ->orderBy('best_selling', 'desc');
                     break;
                 default:

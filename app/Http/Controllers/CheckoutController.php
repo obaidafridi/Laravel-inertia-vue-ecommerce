@@ -18,7 +18,7 @@ class CheckoutController extends Controller
 {
     public function store()
     {
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        // $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
 
         $products = Cart::getContent();
 
